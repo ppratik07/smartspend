@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
-import { PrismaClient } from '@prisma/client';
 import {
   signAccessToken,
   signRefreshToken,
@@ -8,8 +7,7 @@ import {
   getRefreshTokenExpiry,
 } from '../services/tokenService';
 import { AuthRequest } from '../middleware/auth';
-
-const prisma = new PrismaClient();
+import { prisma } from '../lib/prisma';
 
 export async function register(req: Request, res: Response): Promise<void> {
   const { name, email, password, currency = 'USD' } = req.body;

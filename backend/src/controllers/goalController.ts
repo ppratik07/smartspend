@@ -1,8 +1,6 @@
 import { Response } from 'express';
-import { PrismaClient } from '@prisma/client';
 import { AuthRequest } from '../middleware/auth';
-
-const prisma = new PrismaClient();
+import { prisma } from '../lib/prisma';
 
 export async function getGoals(req: AuthRequest, res: Response): Promise<void> {
   const goals = await prisma.goal.findMany({

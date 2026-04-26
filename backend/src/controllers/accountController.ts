@@ -1,8 +1,6 @@
 import { Response } from 'express';
-import { PrismaClient } from '@prisma/client';
 import { AuthRequest } from '../middleware/auth';
-
-const prisma = new PrismaClient();
+import { prisma } from '../lib/prisma';
 
 export async function getAccounts(req: AuthRequest, res: Response): Promise<void> {
   const accounts = await prisma.account.findMany({
