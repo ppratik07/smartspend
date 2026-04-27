@@ -18,7 +18,7 @@ const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || 'http://localhost:8081';
 
 app.use(helmet());
 app.use(cors({
-  origin: CLIENT_ORIGIN,
+  origin: true,  // allow all origins in dev; set CLIENT_ORIGIN env var in production
   credentials: true,
 }));
 app.use(express.json({ limit: '10mb' }));
@@ -45,8 +45,8 @@ app.use((_req, res) => {
 
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  console.log(`🚀 SmartSpend API running on http://localhost:${PORT}`);
+app.listen(Number(PORT), '0.0.0.0', () => {
+  console.log(`🚀 SmartSpend API running on http://0.0.0.0:${PORT}`);
 });
 
 export default app;
