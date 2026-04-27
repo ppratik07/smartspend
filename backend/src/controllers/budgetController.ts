@@ -57,7 +57,7 @@ export async function createBudget(req: AuthRequest, res: Response): Promise<voi
 }
 
 export async function updateBudget(req: AuthRequest, res: Response): Promise<void> {
-  const { id } = req.params;
+  const id = req.params.id as string;
   const budget = await prisma.budget.findFirst({ where: { id, userId: req.user!.userId } });
   if (!budget) {
     res.status(404).json({ error: 'Not Found', message: 'Budget not found' });
@@ -72,7 +72,7 @@ export async function updateBudget(req: AuthRequest, res: Response): Promise<voi
 }
 
 export async function deleteBudget(req: AuthRequest, res: Response): Promise<void> {
-  const { id } = req.params;
+  const id = req.params.id as string;
   const budget = await prisma.budget.findFirst({ where: { id, userId: req.user!.userId } });
   if (!budget) {
     res.status(404).json({ error: 'Not Found', message: 'Budget not found' });

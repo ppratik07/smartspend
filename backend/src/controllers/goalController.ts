@@ -31,7 +31,7 @@ export async function createGoal(req: AuthRequest, res: Response): Promise<void>
 }
 
 export async function updateGoal(req: AuthRequest, res: Response): Promise<void> {
-  const { id } = req.params;
+  const id = req.params.id as string;
   const goal = await prisma.goal.findFirst({ where: { id, userId: req.user!.userId } });
   if (!goal) {
     res.status(404).json({ error: 'Not Found', message: 'Goal not found' });
@@ -49,7 +49,7 @@ export async function updateGoal(req: AuthRequest, res: Response): Promise<void>
 }
 
 export async function deleteGoal(req: AuthRequest, res: Response): Promise<void> {
-  const { id } = req.params;
+  const id = req.params.id as string;
   const goal = await prisma.goal.findFirst({ where: { id, userId: req.user!.userId } });
   if (!goal) {
     res.status(404).json({ error: 'Not Found', message: 'Goal not found' });

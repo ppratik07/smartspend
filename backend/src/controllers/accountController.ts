@@ -19,7 +19,7 @@ export async function createAccount(req: AuthRequest, res: Response): Promise<vo
 }
 
 export async function updateAccount(req: AuthRequest, res: Response): Promise<void> {
-  const { id } = req.params;
+  const id = req.params.id as string;
   const account = await prisma.account.findFirst({ where: { id, userId: req.user!.userId } });
   if (!account) {
     res.status(404).json({ error: 'Not Found', message: 'Account not found' });
@@ -33,7 +33,7 @@ export async function updateAccount(req: AuthRequest, res: Response): Promise<vo
 }
 
 export async function deleteAccount(req: AuthRequest, res: Response): Promise<void> {
-  const { id } = req.params;
+  const id = req.params.id as string;
   const account = await prisma.account.findFirst({ where: { id, userId: req.user!.userId } });
   if (!account) {
     res.status(404).json({ error: 'Not Found', message: 'Account not found' });
