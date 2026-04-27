@@ -10,7 +10,7 @@ import {
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { CartesianChart, Bar, useChartPressState } from 'victory-native';
+import Svg, { Rect, Text as SvgText, Line } from 'react-native-svg';
 import { useTheme } from '../../constants/theme';
 import { useAuthStore } from '../../store/authStore';
 import { useReportStore } from '../../store/reportStore';
@@ -31,8 +31,6 @@ export default function ReportsScreen() {
   useEffect(() => {
     fetchAll(selectedPeriod);
   }, []);
-
-  const { state: pressState, isActive } = useChartPressState({ x: '', y: { amount: 0 } });
 
   const trendData = trend.map((d) => ({ x: d.label, amount: d.amount }));
 
@@ -86,42 +84,7 @@ export default function ReportsScreen() {
             <Card style={styles.trendCard}>
               <Text style={[styles.cardTitle, { color: theme.text }]}>Spending Trend</Text>
               {trendData.length > 0 ? (
-                <View style={{ height: 200 }}>
-                  <CartesianChart
-                    data={trendData}
-                    xKey="x"
-                    yKeys={['amount']}
-                    chartPressState={pressState}
-                    domainPadding={{ left: 20, right: 20, top: 20 }}
-                    axisOptions={{
-                      font: null,
-                      labelColor: theme.textSecondary,
-                      lineColor: theme.border,
-                    }}
-                  >
-                    {({ points, chartBounds }) => (
-                      <Bar
-                        points={points.amount}
-                        chartBounds={chartBounds}
-                        color={theme.primary}
-                        roundedCorners={{ topLeft: 4, topRight: 4 }}
-                        animate={{ type: 'spring' }}
-                      />
-                    )}
-                  </CartesianChart>
-                  {isActive && (
-                    <View
-                      style={[
-                        styles.tooltip,
-                        { backgroundColor: theme.text },
-                      ]}
-                    >
-                      <Text style={[styles.tooltipText, { color: theme.card }]}>
-                        {formatCurrency(pressState.y.amount.value, currency)}
-                      </Text>
-                    </View>
-                  )}
-                </View>
+                <SimpleBarChart data={trendData} color={theme.primary} textColor={theme.textSecondary} lineColor={theme.border} />
               ) : (
                 <View style={styles.emptyChart}>
                   <Text style={[styles.emptyChartText, { color: theme.textSecondary }]}>
@@ -214,6 +177,74 @@ function getEfficiencyMessage(score: number): string {
   return "Focus on reducing expenses.";
 }
 
+function SimpleBarChart({
+  data,
+  color,
+  textColor,
+  lineColor,
+}: {
+  data: { x: string; amount: number }[];
+  color: string;
+  textColor: string;
+  lineColor: string;
+}) {
+  const W = 320;
+  const H = 180;
+  const padL = 8;
+  const padR = 8;
+  const padTop = 12;
+  const padBottom = 32;
+  const chartW = W - padL - padR;
+  const chartH = H - padTop - padBottom;
+
+  const maxVal = Math.max(...data.map((d) => d.amount), 1);
+  const barWidth = chartW / data.length - 6;
+
+  return (
+    <View style={{ alignItems: 'center', marginTop: 4 }}>
+      <Svg width={W} height={H}>
+        {/* baseline */}
+        <Line
+          x1={padL}
+          y1={padTop + chartH}
+          x2={W - padR}
+          y2={padTop + chartH}
+          stroke={lineColor}
+          strokeWidth={1}
+        />
+        {data.map((d, i) => {
+          const barH = (d.amount / maxVal) * chartH;
+          const x = padL + i * (chartW / data.length) + 3;
+          const y = padTop + chartH - barH;
+          const label = d.x.length > 4 ? d.x.slice(0, 4) : d.x;
+          return (
+            <React.Fragment key={i}>
+              <Rect
+                x={x}
+                y={y}
+                width={barWidth}
+                height={barH}
+                fill={color}
+                rx={3}
+                ry={3}
+              />
+              <SvgText
+                x={x + barWidth / 2}
+                y={padTop + chartH + 16}
+                fontSize={9}
+                fill={textColor}
+                textAnchor="middle"
+              >
+                {label}
+              </SvgText>
+            </React.Fragment>
+          );
+        })}
+      </Svg>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   safe: { flex: 1 },
   scroll: { paddingHorizontal: 20, paddingBottom: 40 },
@@ -244,14 +275,6 @@ const styles = StyleSheet.create({
   efficiencySubtitle: { fontSize: 13 },
   trendCard: { marginBottom: 12 },
   cardTitle: { fontSize: 17, fontWeight: '700', marginBottom: 16 },
-  tooltip: {
-    position: 'absolute',
-    top: 0,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  tooltipText: { fontSize: 12, fontWeight: '700' },
   emptyChart: { height: 120, alignItems: 'center', justifyContent: 'center' },
   emptyChartText: { fontSize: 13 },
   categoriesCard: { marginBottom: 12 },
